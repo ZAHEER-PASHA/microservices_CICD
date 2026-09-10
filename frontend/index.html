@@ -1,34 +1,109 @@
 <!DOCTYPE html>
-<html>
+
+<html lang="en">
+
 <head>
-    <title>E-Commerce</title>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>E-Commerce - Products</title>
+
+<link rel="stylesheet" href="/css/style.css">
+
+
 </head>
 
 <body>
 
-    <h1>E-Commerce Microservices</h1>
+<!-- =========================
+     NAVBAR
+========================= -->
 
-    <nav>
-        <a href="/login.html">Login</a>
-        |
-        <a href="/register.html">Register</a>
-        |
-        <a href="/pages/orders.html">My Orders</a>
-    </nav>
+<nav class="navbar">
 
-    <hr>
+    <div class="logo">
+        E-Commerce
+    </div>
 
-    <h2>Welcome</h2>
+    <div class="user-section">
 
-    <p>
-        This frontend is connected to:
-    </p>
+        <span id="welcomeUser">
+            Welcome
+        </span>
 
-    <ul>
-        <li>User Service</li>
-        <li>Product Service</li>
-        <li>Order Service</li>
-    </ul>
+        <button
+            id="ordersBtn"
+            class="btn-secondary">
+            My Orders
+        </button>
+
+        <button
+            id="logoutBtn"
+            class="btn-logout">
+            Logout
+        </button>
+
+    </div>
+
+</nav>
+
+
+<!-- =========================
+     MAIN CONTENT
+========================= -->
+
+<main class="container">
+
+    <div class="page-header">
+
+        <div>
+            <h1>Products</h1>
+
+            <p>
+                Choose a product and place your order.
+            </p>
+        </div>
+
+    </div>
+
+
+    <div
+        id="message"
+        class="message">
+    </div>
+
+
+    <!-- =========================
+         PRODUCT GRID
+    ========================= -->
+
+    <div
+        id="productContainer"
+        class="product-grid">
+
+        <div class="empty-state">
+
+            <h2>
+                Loading products...
+            </h2>
+
+            <p>
+                Please wait.
+            </p>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+<script src="/js/app.js"></script>
+
 
 </body>
+
 </html>

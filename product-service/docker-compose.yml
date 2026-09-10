@@ -23,9 +23,12 @@ services:
       NODE_ENV: development
 
     depends_on:
-
       mysql:
         condition: service_healthy
+
+    networks:
+      - default
+      - ecommerce-network
 
 
   mysql:
@@ -47,7 +50,6 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
     healthcheck:
-
       test:
         [
           "CMD",
@@ -67,3 +69,9 @@ services:
 volumes:
 
   product_mysql_data:
+
+
+networks:
+
+  ecommerce-network:
+    external: true

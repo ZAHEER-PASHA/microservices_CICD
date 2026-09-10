@@ -1,3 +1,4 @@
+
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -49,18 +50,23 @@ async function register(req, res) {
             await bcrypt.hash(password, 12);
 
 
+        // New users are always customers
+        const role = "customer";
+
+
         // Insert user
         const [result] =
             await pool.execute(
 
                 `INSERT INTO users
-                (name, email, password)
-                VALUES (?, ?, ?)`,
+                (name, email, password, role)
+                VALUES (?, ?, ?, ?)`,
 
                 [
                     name.trim(),
                     normalizedEmail,
-                    hashedPassword
+                    hashedPassword,
+                    role
                 ]
             );
 
@@ -78,7 +84,10 @@ async function register(req, res) {
 
                 name: name.trim(),
 
-                email: normalizedEmail
+                email: normalizedEmail,
+
+                role: role
+
             }
         });
 
@@ -129,7 +138,8 @@ async function login(req, res) {
                     id,
                     name,
                     email,
-                    password
+                    password,
+                    role
                  FROM users
                  WHERE email = ?`,
 
@@ -180,7 +190,8 @@ async function login(req, res) {
 
                 {
                     userId: user.id,
-                    email: user.email
+                    email: user.email,
+                    role: user.role
                 },
 
                 process.env.JWT_SECRET,
@@ -208,7 +219,9 @@ async function login(req, res) {
 
                 name: user.name,
 
-                email: user.email
+                email: user.email,
+
+                role: user.role
 
             }
         });
@@ -253,6 +266,7 @@ async function getProfile(req, res) {
                     id,
                     name,
                     email,
+                    role,
                     created_at
                  FROM users
                  WHERE id = ?`,
@@ -312,3 +326,4 @@ module.exports = {
     getProfile
 
 };
+

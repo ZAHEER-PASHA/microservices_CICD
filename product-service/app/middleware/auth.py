@@ -55,3 +55,32 @@ def authenticate_token(f):
             }), 401
 
     return decorated
+
+
+# ==========================================
+# ADMIN AUTHORIZATION
+# ==========================================
+
+def admin_required(f):
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+
+        user = getattr(request, "user", None)
+
+        if not user:
+            return jsonify({
+                "success": False,
+                "message": "Authentication required"
+            }), 401
+
+        if user.get("role") != "admin":
+            return jsonify({
+                "success": False,
+                "message": "Admin access required"
+            }), 403
+
+        return f(*args, **kwargs)
+
+    return decorated
+

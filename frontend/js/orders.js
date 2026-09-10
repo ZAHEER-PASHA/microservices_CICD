@@ -1,4 +1,5 @@
-const token = localStorage.getItem("token");
+const token =
+    localStorage.getItem("token");
 
 
 // ==========================================
@@ -7,16 +8,25 @@ const token = localStorage.getItem("token");
 
 if (!token) {
 
-    alert("Please login first.");
-
-    window.location.href =
-        "/login.html";
+    window.location.replace(
+        "/login.html"
+    );
 }
 
 
 // ==========================================
 // ELEMENTS
 // ==========================================
+
+const backToProducts =
+    document.getElementById(
+        "backToProducts"
+    );
+
+const logoutBtn =
+    document.getElementById(
+        "logoutBtn"
+    );
 
 const pendingOrders =
     document.getElementById(
@@ -40,6 +50,81 @@ const completedMessage =
 
 
 // ==========================================
+// BACK TO PRODUCTS
+// ==========================================
+
+if (backToProducts) {
+
+    backToProducts.addEventListener(
+        "click",
+        () => {
+
+            window.location.href =
+                "/pages/products.html";
+        }
+    );
+}
+
+
+// ==========================================
+// LOGOUT
+// ==========================================
+
+if (logoutBtn) {
+
+    logoutBtn.addEventListener(
+        "click",
+        logout
+    );
+}
+
+
+function logout() {
+
+    // Remove authentication data
+    localStorage.removeItem(
+        "token"
+    );
+
+    localStorage.removeItem(
+        "user"
+    );
+
+
+    // Go directly to login page
+    window.location.replace(
+        "/login.html"
+    );
+}
+
+
+// ==========================================
+// SESSION EXPIRED
+// ==========================================
+
+function handleSessionExpired() {
+
+    localStorage.removeItem(
+        "token"
+    );
+
+    localStorage.removeItem(
+        "user"
+    );
+
+
+    alert(
+        "Your session has expired. Please login again."
+    );
+
+
+    window.location.replace(
+        "/login.html"
+    );
+}
+
+
+// ==========================================
 // LOAD ORDERS
 // ==========================================
 
@@ -51,16 +136,12 @@ async function loadOrders() {
             await fetch(
                 "/api/orders/my",
                 {
-
                     method: "GET",
 
                     headers: {
-
                         "Authorization":
                             "Bearer " + token
-
                     }
-
                 }
             );
 
@@ -75,8 +156,44 @@ async function loadOrders() {
         );
 
 
-        if (!response.ok ||
-            !data.success) {
+        // ==================================
+        // 401 = SESSION EXPIRED
+        // ==================================
+
+        if (
+            response.status === 401
+        ) {
+
+            handleSessionExpired();
+
+            return;
+        }
+
+
+        // ==================================
+        // 403 = FORBIDDEN
+        // DO NOT LOGOUT
+        // ==================================
+
+        if (
+            response.status === 403
+        ) {
+
+            pendingMessage.textContent =
+                data.message ||
+                "You do not have permission to view orders.";
+
+            completedMessage.textContent =
+                "";
+
+            return;
+        }
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
 
             pendingMessage.textContent =
                 data.message ||
@@ -89,7 +206,9 @@ async function loadOrders() {
         }
 
 
-        // Clear previous content
+        // ==================================
+        // CLEAR PREVIOUS CONTENT
+        // ==================================
 
         pendingOrders.innerHTML =
             "";
@@ -97,6 +216,10 @@ async function loadOrders() {
         completedOrders.innerHTML =
             "";
 
+
+        // ==================================
+        // FILTER ORDERS
+        // ==================================
 
         const pending =
             data.orders.filter(
@@ -118,7 +241,9 @@ async function loadOrders() {
         // PENDING ORDERS
         // ==================================
 
-        if (pending.length === 0) {
+        if (
+            pending.length === 0
+        ) {
 
             pendingMessage.textContent =
                 "No pending orders.";
@@ -127,6 +252,7 @@ async function loadOrders() {
 
             pendingMessage.textContent =
                 "Click an order to mark it as completed.";
+
 
             pending.forEach(
                 order => {
@@ -137,12 +263,12 @@ async function loadOrders() {
                             true
                         );
 
-                    pendingOrders
-                        .appendChild(card);
 
+                    pendingOrders.appendChild(
+                        card
+                    );
                 }
             );
-
         }
 
 
@@ -150,7 +276,9 @@ async function loadOrders() {
         // COMPLETED ORDERS
         // ==================================
 
-        if (completed.length === 0) {
+        if (
+            completed.length === 0
+        ) {
 
             completedMessage.textContent =
                 "No completed orders.";
@@ -159,6 +287,7 @@ async function loadOrders() {
 
             completedMessage.textContent =
                 "";
+
 
             completed.forEach(
                 order => {
@@ -169,12 +298,12 @@ async function loadOrders() {
                             false
                         );
 
-                    completedOrders
-                        .appendChild(card);
 
+                    completedOrders.appendChild(
+                        card
+                    );
                 }
             );
-
         }
 
 
@@ -191,9 +320,7 @@ async function loadOrders() {
 
         completedMessage.textContent =
             "";
-
     }
-
 }
 
 
@@ -232,7 +359,6 @@ function createOrderCard(
 
         card.title =
             "Click to complete this order";
-
     }
 
 
@@ -278,16 +404,17 @@ function createOrderCard(
 
         card.addEventListener(
             "click",
-            () => completeOrder(
-                order.id
-            )
-        );
+            () => {
 
+                completeOrder(
+                    order.id
+                );
+            }
+        );
     }
 
 
     return card;
-
 }
 
 
@@ -308,7 +435,6 @@ async function completeOrder(
     if (!confirmOrder) {
 
         return;
-
     }
 
 
@@ -316,22 +442,15 @@ async function completeOrder(
 
         const response =
             await fetch(
-
                 `/api/orders/${orderId}/complete`,
-
                 {
-
                     method: "PUT",
 
                     headers: {
-
                         "Authorization":
                             "Bearer " + token
-
                     }
-
                 }
-
             );
 
 
@@ -345,8 +464,41 @@ async function completeOrder(
         );
 
 
-        if (!response.ok ||
-            !data.success) {
+        // ==================================
+        // 401 = SESSION EXPIRED
+        // ==================================
+
+        if (
+            response.status === 401
+        ) {
+
+            handleSessionExpired();
+
+            return;
+        }
+
+
+        // ==================================
+        // 403 = FORBIDDEN
+        // ==================================
+
+        if (
+            response.status === 403
+        ) {
+
+            alert(
+                data.message ||
+                "You do not have permission to complete this order."
+            );
+
+            return;
+        }
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
 
             alert(
                 data.message ||
@@ -354,7 +506,6 @@ async function completeOrder(
             );
 
             return;
-
         }
 
 
@@ -363,10 +514,7 @@ async function completeOrder(
         );
 
 
-        // Reload orders.
-        // The completed order will automatically
-        // move to the Completed Orders section.
-
+        // Reload orders
         loadOrders();
 
 
@@ -381,9 +529,7 @@ async function completeOrder(
         alert(
             "Unable to complete order."
         );
-
     }
-
 }
 
 
@@ -392,4 +538,3 @@ async function completeOrder(
 // ==========================================
 
 loadOrders();
-

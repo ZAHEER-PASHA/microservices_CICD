@@ -14,13 +14,19 @@ async function createOrder(req, res) {
             req.user.userId;
 
         const {
-            total_amount
+            product_id,
+            quantity
         } = req.body;
 
 
+        // --------------------------------------
+        // Validate product ID
+        // --------------------------------------
+
         if (
-            total_amount === undefined ||
-            total_amount <= 0
+            product_id === undefined ||
+            !Number.isInteger(Number(product_id)) ||
+            Number(product_id) <= 0
         ) {
 
             return res.status(400).json({
@@ -28,17 +34,61 @@ async function createOrder(req, res) {
                 success: false,
 
                 message:
-                    "total_amount must be greater than 0"
+                    "Valid product_id is required"
 
             });
 
         }
 
 
+        // --------------------------------------
+        // Validate quantity
+        // --------------------------------------
+
+        if (
+            quantity === undefined ||
+            !Number.isInteger(Number(quantity)) ||
+            Number(quantity) <= 0
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Quantity must be greater than 0"
+
+            });
+
+        }
+
+
+        // --------------------------------------
+        // Get JWT token
+        // --------------------------------------
+
+        const authHeader =
+            req.headers.authorization;
+
+        const token =
+            authHeader.split(" ")[1];
+
+
+        // --------------------------------------
+        // Create order
+        // --------------------------------------
+
         const order =
             await orderService.createOrder(
+
                 userId,
-                total_amount
+
+                Number(product_id),
+
+                Number(quantity),
+
+                token
+
             );
 
 
@@ -60,6 +110,45 @@ async function createOrder(req, res) {
             "Create order error:",
             error
         );
+
+
+        // Product not found
+        if (
+            error.message.includes(
+                "Product Service returned 404"
+            ) ||
+            error.message ===
+                "Product not found"
+        ) {
+
+            return res.status(404).json({
+
+                success: false,
+
+                message:
+                    "Product not found"
+
+            });
+
+        }
+
+
+        // Insufficient stock
+        if (
+            error.message ===
+                "Insufficient product stock"
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Insufficient product stock"
+
+            });
+
+        }
 
 
         res.status(500).json({
@@ -211,6 +300,10 @@ async function completeOrder(req, res) {
 }
 
 
+// ==========================================
+// EXPORT
+// ==========================================
+
 module.exports = {
 
     createOrder,
@@ -220,4 +313,3 @@ module.exports = {
     completeOrder
 
 };
-

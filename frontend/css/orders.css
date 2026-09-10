@@ -2,9 +2,16 @@
     box-sizing: border-box;
 }
 
+
+/* ==========================================
+   BODY / MAIN CONTAINER
+========================================== */
+
 body {
-    margin: 0;
-    padding: 0;
+    margin: 0 auto;
+    padding: 40px 20px;
+
+    max-width: 1000px;
 
     font-family:
         Arial,
@@ -17,13 +24,20 @@ body {
 
 
 /* ==========================================
-   MAIN CONTAINER
+   ORDERS HEADER
 ========================================== */
 
-body {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 40px 20px;
+.orders-header {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    width: 100%;
+
+    margin-bottom: 40px;
 }
 
 
@@ -31,10 +45,12 @@ body {
    PAGE TITLE
 ========================================== */
 
-h1 {
-    text-align: center;
+.orders-header h1 {
+    margin: 0;
 
-    margin-bottom: 40px;
+    flex: 1;
+
+    text-align: center;
 
     font-size: 36px;
 
@@ -43,11 +59,92 @@ h1 {
 
 
 /* ==========================================
+   HEADER BUTTONS
+========================================== */
+
+#backToProducts,
+#logoutBtn {
+
+    display: inline-block;
+
+    border: none;
+
+    border-radius: 8px;
+
+    padding: 11px 18px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    color: white;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+/* ==========================================
+   BACK TO PRODUCTS
+========================================== */
+
+#backToProducts {
+
+    background: #374151;
+}
+
+
+#backToProducts:hover {
+
+    background: #111827;
+
+    transform: translateX(-3px);
+}
+
+
+#backToProducts:active {
+
+    transform: translateX(0);
+}
+
+
+/* ==========================================
+   LOGOUT
+========================================== */
+
+#logoutBtn {
+
+    background: #dc2626;
+}
+
+
+#logoutBtn:hover {
+
+    background: #b91c1c;
+
+    transform: translateX(3px);
+}
+
+
+#logoutBtn:active {
+
+    transform: translateX(0);
+}
+
+
+/* ==========================================
    SECTION HEADINGS
 ========================================== */
 
 h2 {
+
     margin-top: 30px;
+
     margin-bottom: 15px;
 
     font-size: 24px;
@@ -62,9 +159,10 @@ h2 {
 
 #pendingMessage,
 #completedMessage {
-    color: #6b7280;
 
     margin-bottom: 15px;
+
+    color: #6b7280;
 }
 
 
@@ -75,15 +173,15 @@ h2 {
 #pendingOrders > div,
 #completedOrders > div {
 
+    margin: 15px 0 !important;
+
+    padding: 22px;
+
     background: white;
 
     border: none !important;
 
     border-radius: 14px;
-
-    padding: 22px;
-
-    margin: 15px 0 !important;
 
     box-shadow:
         0 4px 15px rgba(
@@ -96,36 +194,33 @@ h2 {
     transition:
         transform 0.2s ease,
         box-shadow 0.2s ease;
-
 }
 
 
 /* ==========================================
-   PENDING CARD
+   PENDING ORDER
 ========================================== */
 
 #pendingOrders > div {
 
     border-left:
         5px solid #f59e0b !important;
-
 }
 
 
 /* ==========================================
-   COMPLETED CARD
+   COMPLETED ORDER
 ========================================== */
 
 #completedOrders > div {
 
     border-left:
         5px solid #10b981 !important;
-
 }
 
 
 /* ==========================================
-   CARD HOVER
+   PENDING ORDER HOVER
 ========================================== */
 
 #pendingOrders > div:hover {
@@ -140,7 +235,6 @@ h2 {
             0,
             0.12
         );
-
 }
 
 
@@ -173,12 +267,11 @@ h2 {
     font-size: 16px;
 
     line-height: 1.5;
-
 }
 
 
 /* ==========================================
-   CLICK MESSAGE
+   PENDING ORDER CLICK MESSAGE
 ========================================== */
 
 #pendingOrders > div p:last-child {
@@ -194,7 +287,6 @@ h2 {
     color: #c2410c;
 
     font-size: 14px;
-
 }
 
 
@@ -204,43 +296,85 @@ h2 {
 
 hr {
 
+    margin: 35px 0;
+
     border: none;
 
     border-top:
         1px solid #e5e7eb;
-
-    margin: 35px 0;
 }
 
 
 /* ==========================================
-   MOBILE
+   MOBILE RESPONSIVE
 ========================================== */
 
 @media (max-width: 600px) {
 
     body {
+
         padding:
             25px 15px;
     }
 
 
-    h1 {
-        font-size: 28px;
+    /* Header becomes vertical */
+
+    .orders-header {
+
+        flex-direction: column;
+
+        gap: 15px;
     }
 
 
+    /* Title */
+
+    .orders-header h1 {
+
+        order: 1;
+
+        width: 100%;
+
+        font-size: 28px;
+
+        text-align: center;
+    }
+
+
+    /* Back button */
+
+    #backToProducts {
+
+        order: 2;
+
+        width: 100%;
+    }
+
+
+    /* Logout button */
+
+    #logoutBtn {
+
+        order: 3;
+
+        width: 100%;
+    }
+
+
+    /* Section headings */
+
     h2 {
+
         font-size: 21px;
     }
 
+
+    /* Order cards */
 
     #pendingOrders > div,
     #completedOrders > div {
 
         padding: 18px;
-
     }
-
 }
-

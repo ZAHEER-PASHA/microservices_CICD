@@ -97,15 +97,21 @@ form.addEventListener(
                 "Login successful!";
 
 
-            setTimeout(
-                () => {
+            setTimeout(() => {
 
-                    window.location.href =
-                        "http://localhost:8080/pages/products.html";
+    if (data.user.role === "admin") {
 
-                },
-                500
-            );
+        window.location.href =
+            "http://localhost:8090/admin/admin.html";
+
+    } else {
+
+        window.location.href =
+            "http://localhost:8090/pages/products.html";
+
+    }
+
+}, 500);
 
 
         } catch (error) {

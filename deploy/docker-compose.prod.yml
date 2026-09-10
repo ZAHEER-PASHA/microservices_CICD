@@ -1,0 +1,245 @@
+services:
+
+  # =========================
+  # FRONTEND
+  # =========================
+  frontend:
+    image: localhost:5100/microservices-frontend:${IMAGE_TAG}
+    container_name: ecommerce-frontend
+    ports:
+      - "8090:80"
+    restart: unless-stopped
+    depends_on:
+      - user-service
+      - product-service
+      - order-service
+    networks:
+      - ecommerce-network
+
+
+  # =========================
+  # USER SERVICE
+  # =========================
+  user-service:
+    image: localhost:5100/microservices-user:${IMAGE_TAG}
+    container_name: ecommerce-user-service
+    ports:
+      - "5001:5001"
+
+    environment:
+      PORT: 5001
+      DB_HOST: user-mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: root123
+      DB_NAME: ecommerce_users
+      JWT_SECRET: my_super_secret_jwt_key_change_later
+      JWT_EXPIRES_IN: 1h
+      NODE_ENV: development
+
+    depends_on:
+      user-mysql:
+        condition: service_healthy
+
+    restart: unless-stopped
+
+    networks:
+      - ecommerce-network
+
+
+  # =========================
+  # USER MYSQL
+  # =========================
+  user-mysql:
+    image: mysql:8.4
+    container_name: ecommerce-mysql
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: ecommerce_users
+
+    ports:
+      - "3306:3306"
+
+    volumes:
+      - user_mysql_data:/var/lib/mysql
+      - ../user-service/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-uroot",
+          "-proot123"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+    restart: unless-stopped
+
+    networks:
+      - ecommerce-network
+
+
+  # =========================
+  # PRODUCT SERVICE
+  # =========================
+  product-service:
+    image: localhost:5100/microservices-product:${IMAGE_TAG}
+    container_name: ecommerce-product-service
+
+    ports:
+      - "5002:5002"
+
+    environment:
+      PORT: 5002
+      DB_HOST: product-mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: root123
+      DB_NAME: ecommerce_products
+      JWT_SECRET: my_super_secret_jwt_key_change_later
+      NODE_ENV: development
+
+    depends_on:
+      product-mysql:
+        condition: service_healthy
+
+    restart: unless-stopped
+
+    networks:
+      - ecommerce-network
+
+
+  # =========================
+  # PRODUCT MYSQL
+  # =========================
+  product-mysql:
+    image: mysql:8.4
+    container_name: ecommerce-product-mysql
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: ecommerce_products
+
+    ports:
+      - "3308:3306"
+
+    volumes:
+      - product_mysql_data:/var/lib/mysql
+      - ../product-service/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-uroot",
+          "-proot123"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+    restart: unless-stopped
+
+    networks:
+      - ecommerce-network
+
+
+  # =========================
+  # ORDER SERVICE
+  # =========================
+  order-service:
+    image: localhost:5100/microservices-order:${IMAGE_TAG}
+    container_name: ecommerce-order-service
+
+    ports:
+      - "5003:5003"
+
+    environment:
+      PORT: 5003
+      DB_HOST: order-mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: root123
+      DB_NAME: ecommerce_orders
+      JWT_SECRET: my_super_secret_jwt_key_change_later
+      JWT_EXPIRES_IN: 1h
+      NODE_ENV: development
+      PRODUCT_SERVICE_URL: http://product-service:5002
+
+    depends_on:
+      order-mysql:
+        condition: service_healthy
+      product-service:
+        condition: service_started
+
+    restart: unless-stopped
+
+    networks:
+      - ecommerce-network
+
+
+  # =========================
+  # ORDER MYSQL
+  # =========================
+  order-mysql:
+    image: mysql:8.4
+    container_name: ecommerce-order-mysql
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: ecommerce_orders
+
+    ports:
+      - "3307:3306"
+
+    volumes:
+      - order_mysql_data:/var/lib/mysql
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-uroot",
+          "-proot123"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+    restart: unless-stopped
+
+    networks:
+      - ecommerce-network
+
+
+# =========================
+# VOLUMES
+# =========================
+volumes:
+  user_mysql_data:
+  product_mysql_data:
+  order_mysql_data:
+
+
+# =========================
+# NETWORK
+# =========================
+networks:
+  ecommerce-network:
+    name: ecommerce-network
+    external: true
